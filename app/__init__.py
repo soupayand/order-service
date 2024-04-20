@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from .middlewares.auth_middleware import AuthMiddleware
 from .api.order import router as order_router
 from .database.connection import _async_engine
-from .models import Base
+from .models.order import Base,Order
 from dotenv import load_dotenv
 import os
 

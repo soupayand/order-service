@@ -10,22 +10,20 @@ class OrderService:
     def __init__(self, async_session):
         self.async_session = async_session
 
-    async def place_order(order_data: dict) -> dict:
-        owner_id = user_info_context.get("id")
+    async def place_order(self, order_data: dict) -> dict:
+        owner_id = user_info_context.get()["id"]
         if not owner_id:
             raise ValueError("User ID is missing from the user info context.")
 
         new_order = Order(
             total_quantity=order_data['total_quantity'],
-            ordered_date=order_data['ordered_date'],
             total_amount=order_data['total_amount'],
             customer_id=owner_id,
-            item_ids=order_data['item_ids'],
-            ver=1
+            item_ids=order_data['item_ids']
         )
 
         attempts = 2
-        async with async_session() as session:
+        async with self.async_session as session:
             for attempt in range(1, attempts + 1):
                 try:
                     session.add(new_order)
@@ -47,7 +45,7 @@ class OrderService:
         if not owner_id:
             raise ValueError("User ID is missing from the user info context.")
 
-        async with self.async_session() as session:
+        async with self.async_session as session:
             try:
                 result = await session.execute(select(Order).where(Order.customer_id == owner_id))
                 orders = result.scalars().all()
